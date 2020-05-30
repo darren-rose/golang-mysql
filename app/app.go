@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -16,10 +17,8 @@ type App struct {
 }
 
 func (app *App) SetupRouter() {
-	app.Router.
-		Methods("GET").
-		Path("/users").
-		HandlerFunc(app.getUsers)
+	app.Router.Methods(http.MethodGet).Path("/users").HandlerFunc(app.getUsers)
+	app.Router.Methods(http.MethodDelete).Path("/users/{id}").HandlerFunc(app.deleteUser)
 }
 
 func (app *App) getUsers(w http.ResponseWriter, r *http.Request) {
@@ -46,4 +45,26 @@ func (app *App) getUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(users)
+}
+
+func (app *App) deleteUser(w http.ResponseWriter, r *http.Request) {
+	log.Println("deleteUser")
+	params := mux.Vars(r)
+	stmt, err := app.Database.Prepare("DELETE FROM user WHERE id = ?")
+	if err != nil {
+		panic(err.Error())
+	}
+	result, err := stmt.Exec(params["id"])
+	if err != nil {
+		panic(err.Error())
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		panic(err.Error())
+	}
+	log.Println(fmt.Sprintf("deleted %d rows", rows))
+	if rows == 0 {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	}
+
 }
