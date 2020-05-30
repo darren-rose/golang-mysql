@@ -23,9 +23,9 @@ func main() {
 		return
 	}
 
-	database, err := db.CreateDatabase(c)
+	database, err := db.ConnectDatabase(c)
 	if err != nil {
-		log.Fatal("Database connection failed: %s", err.Error())
+		log.Fatal(err.Error())
 		return
 	}
 
