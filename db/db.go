@@ -7,7 +7,7 @@ import (
 	"github.com/darren-rose/golang-mysql/model"
 )
 
-func CreateDatabase(c model.Configuration) (*sql.DB, error) {
+func ConnectDatabase(c model.Configuration) (*sql.DB, error) {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", c.User, c.Password, c.Host, c.Port, c.Database)
 	db, err := sql.Open("mysql", connectionString)
